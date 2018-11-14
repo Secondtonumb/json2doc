@@ -1,0 +1,12 @@
+# Jsonfile
+*.json
+
+#picklefile
+*.pkl
+
+#txt
+*.txt
+
+#dir "result"
+rawdata
+result
