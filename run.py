@@ -145,5 +145,5 @@ if __name__ == '__main__':
         valid_words = [str(x).strip('\n') for x in f_vw.readlines()]
 
     for cls in Contents:
-        generate_plain_text(cls[0:10],
+        generate_plain_text(cls,
                             args.output_path + str(Contents.index(cls)) + '_plain_text')
