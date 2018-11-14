@@ -1,0 +1,8 @@
+* Json2doc
+Generate plain text from JSON file
+** USAGE
+
+```
+./run.sh
+```
+Final Plain Text will be saved in `result/plain_texts`
