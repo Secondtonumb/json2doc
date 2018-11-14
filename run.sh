@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-stage=1
+stage=2
 
 RAWDATA_DIR='./rawdata/'
 mkdir -p $RAWDATA_DIR
@@ -45,9 +45,3 @@ echo "Stage 2 Finished"
 echo "Plain texts are saved in $PLAINTEXT_PATH"
 
 	
-       
-    
-
-    
-    
-

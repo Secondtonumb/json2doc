@@ -100,7 +100,7 @@ def check_word(text, valid_words_dict, need_check=False):
             new_text.append('<atperson>')
         elif w == 'img_mark':
             new_text.append('<img>')
-        elif need_check==True:
+        elif need_check is True:
             if w in valid_words_dict:
                 new_text.append(w)
             else:
