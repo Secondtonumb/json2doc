@@ -1,38 +1,31 @@
-import pickle
+import xml.etree.ElementTree as ET
 import re
 import spacy
+import os
 from tqdm import tqdm
 import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--input_pkl',
-                    default='result/output.pkl',
-                    help='input pickle file, format=dict[T_class_1, T_class_2, ...m T_class_n]')
-parser.add_argument('--valid_words',
-                    default='config/valid_words',
-                    help='valid_words dictionary')
-parser.add_argument('--output_path',
-                    default='result/plain_texts/')
-args = parser.parse_args()
-
 nlp = spacy.load('en')
+valid_tags = ['RelQSubject', 'RelQBody', 'RelCText']
 
-
-def clean_html(text):
-    imp_ptn = re.compile(r'<img.*?>')
-    href_ptn = re.compile(r'<.*?href.*?><.*?>')
-    em_ptn = re.compile(r'<em>.*?</em>')
-    center_ptn = re.compile(r'<center>')
-    text = re.sub(imp_ptn, 'img_mark', text)
-    text = re.sub(href_ptn, ' ', text)
-    text = re.sub(em_ptn, 'em_mark', text)
-    text = re.sub(center_ptn, ' ', text)
-    return text
+parser = argparse.ArgumentParser()
+parser.add_argument('--valid_tags',
+                    default='./config/valid_tags')
+parser.add_argument('--valid_words',
+                    default='./config/valid_words',
+                    help='valid_words dictionary')
+parser.add_argument('--xml_dir',
+                    default='./rawdata/xml/')
+parser.add_argument('--output_dir',
+                    default='./result/xml_plain_texts/')
+args = parser.parse_args()
 
 
 def tokenizer(text, need_punct=False):
     if need_punct:
         return [word.orth_ for word in nlp(text) if not word.is_space]
+    elif text is None:
+        return []
     else:
         return [word.orth_ for word in nlp(text) if not word.is_punct and not word.is_space]
 
@@ -85,8 +78,10 @@ def check_word(text, valid_words_dict, need_check=False):
       new_text: cleaned text
     '''
     new_text = []
+    if text is None:
+        return new_text
     for w in text:
-        # w = word.lower().strip()
+        w = w.lower().strip()
         # print(w)
         if is_website(w):
             new_text.append('<url>')
@@ -125,7 +120,6 @@ def check_word(text, valid_words_dict, need_check=False):
 def generate_plain_text(Ts, output_file_name):
     plain_text = []
     for item in tqdm(Ts):
-        item = clean_html(item)
         final_text = check_word(tokenizer(item,
                                           need_punct=False),
                                 valid_words_dict=valid_words,
@@ -138,13 +132,22 @@ def generate_plain_text(Ts, output_file_name):
 
 
 if __name__ == '__main__':
-
-    with open(args.input_pkl, 'rb') as f_pkl:
-        Contents = pickle.load(f_pkl)
     with open(args.valid_words, 'r') as f_vw:
         valid_words = [str(x).strip('\n') for x in f_vw.readlines()]
 
-    for cls in Contents:
-        if Contents.index(cls) == 2:
-            generate_plain_text(cls,
-                                args.output_path + str(Contents.index(cls)) + '_plain_text')
+    xml_files = os.listdir(args.xml_dir)
+    
+    for xml in xml_files:
+        xml_ = os.path.join(args.xml_dir, xml)
+        if os.path.isfile(xml_):
+            with open(xml_, 'r') as f:
+                tree = ET.parse(f)
+                for tag in valid_tags:
+                    text = []
+                    for item in tree.iter(tag=tag):
+                        text.append(item.text)
+
+                    output_path = args.output_dir + xml.strip('.xml') + \
+                        tag + '.output'
+                    
+                    generate_plain_text(text, output_path)

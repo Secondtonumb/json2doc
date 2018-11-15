@@ -10,10 +10,10 @@ valid_tags = ['RelQSubject', 'RelQBody', 'RelCText']
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--valid_words',
-                    default='valid_words',
+                    default='./config/valid_words/',
                     help='valid_words dictionary')
-parser.add_argument('--xml_list',
-                    default='xml_list')
+parser.add_argument('--xml_dir',
+                    default='./rawdata/xml/')
 
 args = parser.parse_args()
 
